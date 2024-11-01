@@ -1038,6 +1038,7 @@ namespace dso
 		fh_right->shell = shell;
 
 		// =========================== make Images / derivatives etc. =========================
+		// 数据预处理
 		fh->ab_exposure = image->exposure_time;
 		fh->makeImages(image->image, &Hcalib);
 		fh_right->ab_exposure = image_right->exposure_time;
