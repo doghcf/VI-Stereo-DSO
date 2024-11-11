@@ -1009,6 +1009,7 @@ namespace dso
 		LOG(INFO) << "M_num: " << M_num << " M_num2: " << M_num2;
 		run_time = pic_time_stamp[id];
 		LOG(INFO) << std::fixed << std::setprecision(12) << "run_time: " << run_time;
+
 		if (isLost)
 			return;
 		boost::unique_lock<boost::mutex> lock(trackMutex);
@@ -1061,8 +1062,8 @@ namespace dso
 			if (coarseInitializer->frameID < 0 && use_stereo) // first frame set. fh is kept by coarseInitializer.
 			{
 				coarseInitializer->setFirstStereo(&Hcalib, fh, fh_right);
+				
 				initFirstFrame_imu(fh);
-
 				initializeFromInitializer(fh);
 				initialized = true;
 				M_num = 0;
@@ -1579,7 +1580,6 @@ namespace dso
 		frameHessians.push_back(firstFrame);
 		firstFrame->frameID = allKeyFramesHistory.size();
 		firstFrame->frame_right->frameID = 10000 + allKeyFramesHistory.size();
-		// 	firstFrame->frame_right->frameID = allKeyFramesHistory.size();
 		allKeyFramesHistory.push_back(firstFrame->shell);
 		ef->insertFrame(firstFrame, &Hcalib);
 		setPrecalcValues();
@@ -1629,14 +1629,12 @@ namespace dso
 				pt->idepth_max = pt->idepth_max_stereo;
 				idepthStereo = pt->idepth_stereo;
 
-				double d_mid = 0.5 * (1 / pt->idepth_min + 1 / pt->idepth_max);
-				if (!std::isfinite(pt->energyTH) || !std::isfinite(pt->idepth_min) || !std::isfinite(pt->idepth_max)
-					/*||d_mid<0||d_mid>100*/
-					|| pt->idepth_min < 0 || pt->idepth_max < 0)
+				if (!std::isfinite(pt->energyTH) || !std::isfinite(pt->idepth_min) || !std::isfinite(pt->idepth_max) || pt->idepth_min < 0 || pt->idepth_max < 0)
 				{
 					delete pt;
 					continue;
 				}
+
 				PointHessian *ph = new PointHessian(pt, &Hcalib);
 				delete pt;
 				if (!std::isfinite(ph->energyTH))
@@ -1652,6 +1650,7 @@ namespace dso
 
 				firstFrame->pointHessians.push_back(ph);
 				ef->insertPoint(ph);
+
 				PointFrameResidual *r = new PointFrameResidual(ph, ph->host, ph->host->frame_right);
 				r->state_NewEnergy = r->state_energy = 0;
 				r->state_NewState = ResState::OUTLIER;
@@ -1707,20 +1706,16 @@ namespace dso
 			// 		firstFrame->setEvalPT_scaled(firstFrame->shell->camToWorld.inverse(),firstFrame->shell->aff_g2l);
 			firstFrame->shell->trackingRef = 0;
 			firstFrame->shell->camToTrackingRef = SE3();
-			// 		LOG(INFO)<<"firstFrame pose: \n"<<firstFrame->shell->camToWorld.matrix();
 
 			newFrame->shell->camToWorld = firstFrame->shell->camToWorld * firstToNew.inverse();
 			newFrame->shell->aff_g2l = AffLight(0, 0);
 			newFrame->setEvalPT_scaled(newFrame->shell->camToWorld.inverse(), newFrame->shell->aff_g2l);
 			newFrame->shell->trackingRef = firstFrame->shell;
 			newFrame->shell->camToTrackingRef = firstToNew.inverse();
-
-			// 		LOG(INFO)<<"newFrame pose: \n"<<newFrame->shell->camToWorld.matrix();
 		}
 
 		initialized = true;
 		printf("INITIALIZE FROM INITIALIZER (%d pts)!\n", (int)firstFrame->pointHessians.size());
-		// 	if((int)firstFrame->pointHessians.size()<600)initFailed=true;
 	}
 
 	void FullSystem::makeNewTraces(FrameHessian *newFrame, float *gtDepth)

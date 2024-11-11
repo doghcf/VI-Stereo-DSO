@@ -728,10 +728,7 @@ int main(int argc, char **argv)
 	int w_out, h_out;
 	reader_right->getCalibMono(K_right, w_out, h_out);
 
-	LOG(INFO) << "K_right: \n"
-			  << K_right;
-	// 	LOG(INFO)<<"T_C0C1: \n"<<T_C0C1.matrix();
-	// 	exit(1);
+	LOG(INFO) << "K_right: \n" << K_right;
 
 	if (setting_photometricCalibration > 0 && reader->getPhotometricGamma() == 0)
 	{
@@ -769,10 +766,12 @@ int main(int argc, char **argv)
 	// to make MacOS happy: run this in dedicated thread -- and use this one to run the GUI.
 	std::thread runthread([&]()
 	{
-		std::vector<int> idsToPlay;
+		std::vector<int> idsToPlay; // left images
 		std::vector<double> timesToPlayAt;
+
 		std::vector<int> idsToPlayRight; // right images
 		std::vector<double> timesToPlayAtRight;
+
 		for (int i = lstart; i >= 0 && i < reader->getNumImages() && linc * i < linc * lend; i += linc)
 		{
 			idsToPlay.push_back(i);
@@ -816,6 +815,7 @@ int main(int argc, char **argv)
 			}
 		}
 
+		// timing
 		struct timeval tv_start;
 		gettimeofday(&tv_start, NULL);
 		clock_t started = clock();
@@ -889,6 +889,7 @@ int main(int argc, char **argv)
 				fullSystem->addActiveFrame(img, img_right, i);
 
 			delete img;
+			delete img_right;
 
 			if (fullSystem->initFailed || setting_fullResetRequested)
 			{
@@ -909,7 +910,8 @@ int main(int argc, char **argv)
 					fullSystem->outputWrapper = wraps;
 
 					setting_fullResetRequested = false;
-					first_track_flag = false;
+
+					first_track_flag = false;	// ?
 				}
 			}
 
@@ -924,7 +926,7 @@ int main(int argc, char **argv)
 		struct timeval tv_end;
 		gettimeofday(&tv_end, NULL);
 
-		fullSystem->printResult("result.txt");
+		fullSystem->printResult("/home/fu/VI-Stereo-DSO/result.txt");
 
 		int numFramesProcessed = abs(idsToPlay[0] - idsToPlay.back());
 		double numSecondsProcessed = fabs(reader->getTimestamp(idsToPlay[0]) - reader->getTimestamp(idsToPlay.back()));
