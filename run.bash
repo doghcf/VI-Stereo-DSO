@@ -1,18 +1,19 @@
 #!/bin/bash
-#usage: python xxx.py file_name
-dataname="MH_01_easy"
+#usage: ./run.bash
+
+# dataname="MH_01_easy"
 # dataname="MH_02_easy"
 # dataname="MH_03_medium"
-# dataname="MH_04_difficult"
+dataname="MH_04_difficult"
 # dataname="MH_05_difficult"
 # run dso
 ./build/bin/dso_dataset \
 	files0=/home/fu/dataset/EuRoc/${dataname}/mav0/cam0/data \
 	files1=/home/fu/dataset/EuRoc/${dataname}/mav0/cam1/data \
-	calib0=/home/fu/vi_stereo_dso/calib/euroc/cam0.txt \
-	calib1=/home/fu/vi_stereo_dso/calib/euroc/cam1.txt \
-	T_stereo=/home/fu/vi_stereo_dso/calib/euroc/T_C0C1.txt \
-	imu_info=/home/fu/vi_stereo_dso/calib/euroc/IMU_info.txt \
+	calib0=/home/fu/VI-Stereo-DSO/calib/euroc/cam0.txt \
+	calib1=/home/fu/VI-Stereo-DSO/calib/euroc/cam1.txt \
+	T_stereo=/home/fu/VI-Stereo-DSO/calib/euroc/T_C0C1.txt \
+	imu_info=/home/fu/VI-Stereo-DSO/calib/euroc/IMU_info.txt \
 	groundtruth=/home/fu/dataset/EuRoc/${dataname}/mav0/state_groundtruth_estimate0/data.csv \
 	imudata=/home/fu/dataset/EuRoc/${dataname}/mav0/imu0/data.csv \
 	pic_timestamp=/home/fu/dataset/EuRoc/${dataname}/mav0/cam0/data.csv \

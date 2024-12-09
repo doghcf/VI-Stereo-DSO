@@ -1139,17 +1139,14 @@ namespace dso
 									   setting_kfGlobalWeight * setting_maxAffineWeight * fabs(logf((float)refToFh[0])) >
 								   1 ||
 							   2 * coarseTracker->firstCoarseRMSE < tres[0];
+
 				double delta = setting_kfGlobalWeight * setting_maxShiftWeightT * sqrtf((double)tres[1]) / (wG[0] + hG[0]) +
 							   setting_kfGlobalWeight * setting_maxShiftWeightR * sqrtf((double)tres[2]) / (wG[0] + hG[0]) +
 							   setting_kfGlobalWeight * setting_maxShiftWeightRT * sqrtf((double)tres[3]) / (wG[0] + hG[0]) +
 							   setting_kfGlobalWeight * setting_maxAffineWeight * fabs(logf((float)refToFh[0]));
-				// if(pic_time_stamp[fh->shell->incoming_id] - pic_time_stamp[coarseTracker->lastRef->shell->incoming_id]>=0.39&&delta>0.3f)
+
 				if (pic_time_stamp[fh->shell->incoming_id] - pic_time_stamp[coarseTracker->lastRef->shell->incoming_id] >= 0.45 && delta > 0.5f)
 					needToMakeKF = true;
-				// if(pic_time_stamp[fh->shell->incoming_id] - pic_time_stamp[coarseTracker->lastRef->shell->incoming_id]>=0.45)
-				// 	needToMakeKF = true;
-				// LOG(INFO)<<"delta: "<<delta;
-				// LOG(INFO)<<"tres: "<<tres.transpose()<<" refToFh[0]: "<<refToFh[0];
 			}
 
 			for (IOWrap::Output3DWrapper *ow : outputWrapper)
@@ -1231,6 +1228,7 @@ namespace dso
 		T_WD_l_half = T_WD;
 		state_twd.setZero();
 	}
+	
 	void FullSystem::savetrajectory(const Sophus::Matrix4d &T)
 	{
 		std::ofstream f1;

@@ -765,7 +765,7 @@ int main(int argc, char **argv)
 
 	// to make MacOS happy: run this in dedicated thread -- and use this one to run the GUI.
 	std::thread runthread([&]()
-	{
+						  {
 		std::vector<int> idsToPlay; // left images
 		std::vector<double> timesToPlayAt;
 
@@ -953,8 +953,7 @@ int main(int argc, char **argv)
 				<< ((tv_end.tv_sec - tv_start.tv_sec) * 1000.0f + (tv_end.tv_usec - tv_start.tv_usec) / 1000.0f) / (float)reader->getNumImages() << "\n";
 			tmlog.flush();
 			tmlog.close();
-		}
-	});
+		} });
 
 	if (viewer != 0)
 		viewer->run();
