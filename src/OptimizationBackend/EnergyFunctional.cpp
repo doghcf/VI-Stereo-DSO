@@ -875,7 +875,6 @@ namespace dso
 
 	void EnergyFunctional::marginalizeFrame_imu(EFFrame *fh)
 	{
-
 		int ndim = nFrames * 17 + CPARS + 7 - 17; // new dimension
 		int odim = nFrames * 17 + CPARS + 7;	  // old dimension
 		if (nFrames >= setting_maxFrames)
@@ -943,20 +942,10 @@ namespace dso
 			Vec3 g_w;
 			g_w << 0, 0, -G_norm;
 
-			// 	    Mat44 M_WB = T_WD.matrix()*worldToCam_i.inverse().matrix()*T_WD.inverse().matrix()*T_BC.inverse().matrix();
-			// 	    SE3 T_WB(M_WB);
-			// 	    Mat33 R_WB = T_WB.rotationMatrix();
-			// 	    Vec3 t_WB = T_WB.translation();
-
 			Mat44 M_WB2 = T_WD.matrix() * worldToCam_i2.inverse().matrix() * T_WD.inverse().matrix() * T_BC.inverse().matrix();
 			SE3 T_WB2(M_WB2);
 			Mat33 R_WB2 = T_WB2.rotationMatrix();
 			Vec3 t_WB2 = T_WB2.translation();
-
-			// 	    Mat44 M_WBj = T_WD.matrix()*worldToCam_j.inverse().matrix()*T_WD.inverse().matrix()*T_BC.inverse().matrix();
-			// 	    SE3 T_WBj(M_WBj);
-			// 	    Mat33 R_WBj = T_WBj.rotationMatrix();
-			// 	    Vec3 t_WBj = T_WBj.translation();
 
 			Mat44 M_WBj2 = T_WD.matrix() * worldToCam_j2.inverse().matrix() * T_WD.inverse().matrix() * T_BC.inverse().matrix();
 			SE3 T_WBj2(M_WBj2);
@@ -973,24 +962,6 @@ namespace dso
 						  (IMU_preintegrator.getDeltaP() + IMU_preintegrator.getJPBiasa() * Framei->delta_bias_a + IMU_preintegrator.getJPBiasg() * Framei->delta_bias_g);
 
 			Mat99 Cov = IMU_preintegrator.getCovPVPhi();
-
-			// 	    Mat33 J_resPhi_phi_i = -IMU_preintegrator.JacobianRInv(res_phi2)*R_WBj.transpose()*R_WB;
-			// 	    Mat33 J_resPhi_phi_j = IMU_preintegrator.JacobianRInv(res_phi2);
-			// 	    Mat33 J_resPhi_bg = -IMU_preintegrator.JacobianRInv(res_phi2)*SO3::exp(-res_phi2).matrix()*
-			// 		    IMU_preintegrator.JacobianR(IMU_preintegrator.getJRBiasg()*Framei->delta_bias_g)*IMU_preintegrator.getJRBiasg();
-
-			// 	    Mat33 J_resV_phi_i = SO3::hat(R_WB.transpose()*(Framej->velocity - Framei->velocity - g_w*dt));
-			// 	    Mat33 J_resV_v_i = -R_WB.transpose();
-			// 	    Mat33 J_resV_v_j = R_WB.transpose();
-			// 	    Mat33 J_resV_ba = -IMU_preintegrator.getJVBiasa();
-			// 	    Mat33 J_resV_bg = -IMU_preintegrator.getJVBiasg();
-			//
-			// 	    Mat33 J_resP_p_i = -Mat33::Identity();
-			// 	    Mat33 J_resP_p_j = R_WB.transpose()*R_WBj;
-			// 	    Mat33 J_resP_bg = -IMU_preintegrator.getJPBiasg();
-			// 	    Mat33 J_resP_ba = -IMU_preintegrator.getJPBiasa();
-			// 	    Mat33 J_resP_v_i = -R_WB.transpose()*dt;
-			// 	    Mat33 J_resP_phi_i = SO3::hat(R_WB.transpose()*(t_WBj - t_WB - Framei->velocity*dt - 0.5*g_w*dt*dt));
 
 			Mat33 J_resPhi_phi_i = -IMU_preintegrator.JacobianRInv(res_phi2) * R_WBj2.transpose() * R_WB2;
 			Mat33 J_resPhi_phi_j = IMU_preintegrator.JacobianRInv(res_phi2);
@@ -1040,42 +1011,12 @@ namespace dso
 				Weight2(i, i) = Weight(i, i);
 			}
 			Weight = Weight2;
-			// 	    Mat99 Weight_sqrt = Mat99::Zero();
-			// 	    for(int j=0;j<9;++j){
-			// 		Weight_sqrt(j,j) = imu_weight*sqrt(1/Weight(j,j));
-			// 	    }
 			Weight = imu_weight * imu_weight * Weight.inverse();
-			// 	LOG(INFO)<<"Weight_sqrt: "<<Weight_sqrt.diagonal().transpose();
+
 			Vec9 b_1 = Vec9::Zero();
 			b_1.block(0, 0, 3, 1) = res_p2;
 			b_1.block(3, 0, 3, 1) = res_phi2;
 			b_1.block(6, 0, 3, 1) = res_v2;
-
-			// 	    double resF2_All = 0;
-			// 	    for(EFPoint* p : frames[i]->points){
-			// 	      for(EFResidual* r : p->residualsAll){
-			// 		if(r->isLinearized || !r->isActive()) continue;
-			// 		if(r->targetIDX == i+1){
-			// 		  for(int k=0;k<patternNum;++k){
-			// 		    resF2_All += r->J->resF[k]*r->J->resF[k];
-			// 		  }
-			// 		}
-			// 	      }
-			// 	    }
-			// 	    for(EFPoint* p : frames[i+1]->points){
-			// 	      for(EFResidual* r : p->residualsAll){
-			// 		if(r->isLinearized || !r->isActive()) continue;
-			// 		if(r->targetIDX == i){
-			// 		  for(int k=0;k<patternNum;++k){
-			// 		    resF2_All += r->J->resF[k]*r->J->resF[k];
-			// 		  }
-			// 		}
-			// 	      }
-			// 	    }
-			// 	    double E_imu = b_1.transpose()*Weight*b_1;
-			// 	    double bei = sqrt(resF2_All/E_imu);
-			// 	    bei = bei/imu_lambda;
-			// 	    Weight *=(bei*bei);
 
 			Mat44 T_tempj = T_BC.matrix() * T_WD_l.matrix() * worldToCam_j.matrix();
 			Mat1515 J_relj = Mat1515::Identity();
@@ -1226,9 +1167,6 @@ namespace dso
 			HM_imu_half.block(CPARS + 6, 0, 1, HM_imu_half.cols()) = MatXX::Zero(1, HM_imu_half.cols());
 			HM_imu_half.block(0, CPARS + 6, HM_imu_half.rows(), 1) = MatXX::Zero(HM_imu_half.rows(), 1);
 			bM_imu_half[CPARS + 6] = 0;
-			// 	    HM_imu_half.block(CPARS,0,7,HM_imu_half.cols()) = MatXX::Zero(7,HM_imu_half.cols());
-			// 	    HM_imu_half.block(0,CPARS,HM_imu_half.rows(),7) = MatXX::Zero(HM_imu_half.rows(),7);
-			// 	    bM_imu_half.block(CPARS,0,7,1) = VecX::Zero(7);
 
 			HM_imu_half.setZero();
 			bM_imu_half.setZero();
@@ -1428,7 +1366,7 @@ namespace dso
 			bM_imu = bMScaled.head(ndim);
 		}
 	}
-
+	
 	void EnergyFunctional::marginalizeFrame(EFFrame *fh)
 	{
 

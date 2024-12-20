@@ -821,7 +821,7 @@ int main(int argc, char **argv)
 		clock_t started = clock();
 		double sInitializerOffset = 0;
 
-		for (int ii = 30; ii < (int)idsToPlay.size(); ii++)
+		for (int ii = 30; ii < (int)idsToPlay.size(); ii++)		// ii=30?
 		{
 			if (!fullSystem->initialized) // if not initialized: reset start time.
 			{

@@ -102,10 +102,10 @@ public:
 		this->path = path;
 		this->calibfile = calibFile;
 
-		#if HAS_ZIPLIB
+#if HAS_ZIPLIB
 		ziparchive = 0;
 		databuffer = 0;
-		#endif
+#endif
 
 		isZipped = (path.length() > 4 && path.substr(path.length() - 4) == ".zip");
 
@@ -152,6 +152,7 @@ public:
 		loadTimestamps();
 		printf("ImageFolderReader: got %d files in %s!\n", (int)files.size(), path.c_str());
 	}
+
 	~ImageFolderReader()
 	{
 #if HAS_ZIPLIB

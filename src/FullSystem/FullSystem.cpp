@@ -1482,14 +1482,14 @@ namespace dso
 		// =========================== OPTIMIZE ALL =========================
 
 		fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
-		// 	LOG(INFO)<<"optimize start";
+		// LOG(INFO)<<"optimize start";
 		float rmse = optimize(setting_maxOptIterations);
-		// 	LOG(INFO)<<"rmse: "<<rmse;
+		// LOG(INFO)<<"rmse: "<<rmse;
 
 		// =========================== Figure Out if INITIALIZATION FAILED =========================
 		if (allKeyFramesHistory.size() <= 4)
 		{
-			// 		LOG(INFO)<<"allKeyFramesHistory.size(): "<<allKeyFramesHistory.size()<<" rmse: "<<rmse;
+			// LOG(INFO)<<"allKeyFramesHistory.size(): "<<allKeyFramesHistory.size()<<" rmse: "<<rmse;
 			if (allKeyFramesHistory.size() == 2 && rmse > 20 * benchmark_initializerSlackFactor)
 			{
 				printf("I THINK INITIALIZATINO FAILED! Resetting.\n");
