@@ -926,7 +926,7 @@ int main(int argc, char **argv)
 		struct timeval tv_end;
 		gettimeofday(&tv_end, NULL);
 
-		fullSystem->printResult("/home/fu/VI-Stereo-DSO/result.txt");
+		fullSystem->printResult("/home/bjergsen/VI-Stereo-DSO/result.txt");
 
 		int numFramesProcessed = abs(idsToPlay[0] - idsToPlay.back());
 		double numSecondsProcessed = fabs(reader->getTimestamp(idsToPlay[0]) - reader->getTimestamp(idsToPlay.back()));

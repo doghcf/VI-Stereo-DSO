@@ -2,3 +2,6 @@
 /data/
 /.vscode/
 result.txt
+run.bash
+run_euroc.bash
+run_mono.bash
