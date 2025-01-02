@@ -1037,6 +1037,7 @@ namespace dso
 		shell->incoming_id = id;
 		fh->shell = shell;
 		fh_right->shell = shell;
+		allFrameHistory.push_back(shell);
 
 		// =========================== make Images / derivatives etc. =========================
 		// 数据预处理
@@ -1052,8 +1053,6 @@ namespace dso
 			fh->bias_g = fh->shell->bias_g = allFrameHistory.back()->bias_g + allFrameHistory.back()->delta_bias_g;
 			fh->bias_a = fh->shell->bias_a = allFrameHistory.back()->bias_a + allFrameHistory.back()->delta_bias_a;
 		}
-
-		allFrameHistory.push_back(shell);
 
 		// 	LOG(INFO)<<"fh->bias_a: "<<fh->bias_a.transpose();
 		if (!initialized)

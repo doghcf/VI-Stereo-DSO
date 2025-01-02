@@ -814,10 +814,10 @@ namespace dso
 		bool *statusMapB = new bool[w[0] * h[0]];
 		float densities[] = {0.03, 0.05, 0.15, 0.5, 1};
 		// memset(idepth[0], 0, sizeof(float)*w[0]*h[0]);
-		for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)
-		{
-			idepth[lvl] = new float[w[lvl] * h[lvl]]{0};
-		}
+		// for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)
+		// {
+		// 	idepth[lvl] = new float[w[lvl] * h[lvl]]{0};
+		// }
 		for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)
 		{
 			sel.currentPotential = 3;

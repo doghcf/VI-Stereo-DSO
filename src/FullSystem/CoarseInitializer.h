@@ -110,7 +110,7 @@ namespace dso
 		int w[PYR_LEVELS];
 		int h[PYR_LEVELS];
 		void makeK(CalibHessian *HCalib);
-		float *idepth[PYR_LEVELS];
+		// float *idepth[PYR_LEVELS];
 
 		bool snapped;
 		int snappedAt;
