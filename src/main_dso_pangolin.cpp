@@ -724,7 +724,6 @@ int main(int argc, char **argv)
 	else
 		reader_right = new ImageFolderReader(source0, calib0, gammaCalib, vignette);
 	reader->setGlobalCalibration();
-	// 	reader_right->setGlobalCalibration();
 	int w_out, h_out;
 	reader_right->getCalibMono(K_right, w_out, h_out);
 

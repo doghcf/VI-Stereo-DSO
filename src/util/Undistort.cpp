@@ -403,9 +403,9 @@ namespace dso
 			exit(1);
 		}
 
-		photometricUndist->processFrame<T>(image_raw->data, exposure, factor);
+		photometricUndist->processFrame<T>(image_raw->data, exposure, factor);	// 光度校准
 		ImageAndExposure *result = new ImageAndExposure(w, h, timestamp);
-		photometricUndist->output->copyMetaTo(*result);
+		photometricUndist->output->copyMetaTo(*result);	// 结果图像、曝光时间、时间戳
 
 		if (!passthrough)
 		{

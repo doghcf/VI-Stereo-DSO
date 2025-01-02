@@ -126,7 +126,7 @@ namespace dso
 		// absSquaredGrad存储xy方向梯度值的平方和
 		for (int i = 0; i < pyrLevelsUsed; i++)
 		{
-			dIp[i] = new Eigen::Vector3f[wG[i] * hG[i]];
+			dIp[i] = new Eigen::Vector3f[wG[i] * hG[i]];	// 金字塔第i层的数组的首地址
 			absSquaredGrad[i] = new float[wG[i] * hG[i]];
 		}
 		// dI原始图像的信息
@@ -153,6 +153,7 @@ namespace dso
 				for (int y = 0; y < hl; y++)
 					for (int x = 0; x < wl; x++)
 					{
+						// 上层金字塔图像的像素值由下层图像的4个像素值均匀采样得到的
 						dI_l[x + y * wl][0] = 0.25f * (dI_lm[2 * x + 2 * y * wlm1][0] +
 													   dI_lm[2 * x + 1 + 2 * y * wlm1][0] +
 													   dI_lm[2 * x + 2 * y * wlm1 + wlm1][0] +
@@ -162,6 +163,7 @@ namespace dso
 
 			for (int idx = wl; idx < wl * (hl - 1); idx++)
 			{
+				// 利用前后两个像素的差值作为x方向的梯度，利用上下两个像素的差值作为y方向的梯度
 				float dx = 0.5f * (dI_l[idx + 1][0] - dI_l[idx - 1][0]);
 				float dy = 0.5f * (dI_l[idx + wl][0] - dI_l[idx - wl][0]);
 
