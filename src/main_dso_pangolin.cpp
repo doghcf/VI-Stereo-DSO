@@ -763,7 +763,7 @@ int main(int argc, char **argv)
 
 	// to make MacOS happy: run this in dedicated thread -- and use this one to run the GUI.
 	std::thread runthread([&]()
-						  {
+	{
 		std::vector<int> idsToPlay; // left images
 		std::vector<double> timesToPlayAt;
 
@@ -832,6 +832,8 @@ int main(int argc, char **argv)
 
 			double time_l = pic_time_stamp[i];
 			int index = -1;
+
+			// =========================== 新增 start =========================
 			if (use_stereo)
 			{
 				if (pic_time_stamp_r.size() > 0)
@@ -850,6 +852,7 @@ int main(int argc, char **argv)
 					continue;
 				}
 			}
+			// =========================== 新增 end =========================
 
 			ImageAndExposure *img;
 			ImageAndExposure *img_right;
@@ -919,6 +922,7 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
+
 		fullSystem->blockUntilMappingIsFinished();
 		clock_t ended = clock();
 		struct timeval tv_end;

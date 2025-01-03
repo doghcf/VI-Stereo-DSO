@@ -1014,6 +1014,7 @@ namespace dso
 			return;
 		boost::unique_lock<boost::mutex> lock(trackMutex);
 
+		// =========================== 新增 start =========================
 		if (use_stereo && (T_WD.scale() > 2 || T_WD.scale() < 0.6))
 		{
 			initFailed = true;
@@ -1025,6 +1026,7 @@ namespace dso
 			initFailed = true;
 			first_track_flag = false;
 		}
+		// =========================== 新增 end =========================
 
 		// =========================== add into allFrameHistory =========================
 		FrameHessian *fh = new FrameHessian();
@@ -1045,6 +1047,8 @@ namespace dso
 		fh->makeImages(image->image, &Hcalib);
 		fh_right->ab_exposure = image_right->exposure_time;
 		fh_right->makeImages(image_right->image, &Hcalib);
+		
+		// =========================== 新增 start =========================
 		fh->frame_right = fh_right;
 
 		if (allFrameHistory.size() > 0)
@@ -1053,6 +1057,7 @@ namespace dso
 			fh->bias_g = fh->shell->bias_g = allFrameHistory.back()->bias_g + allFrameHistory.back()->delta_bias_g;
 			fh->bias_a = fh->shell->bias_a = allFrameHistory.back()->bias_a + allFrameHistory.back()->delta_bias_a;
 		}
+		// =========================== 新增 end =========================
 
 		// 	LOG(INFO)<<"fh->bias_a: "<<fh->bias_a.transpose();
 		if (!initialized)
