@@ -294,10 +294,11 @@ namespace dso
 		AffLight aff_last_2_l = AffLight(0, 0);
 
 		std::vector<SE3, Eigen::aligned_allocator<SE3>> lastF_2_fh_tries;
-		if (use_stereo && (allFrameHistory.size() == 2 || first_track_flag == false) /*frameHessians.size()==1*/)
+		if (use_stereo && (allFrameHistory.size() == 2 || first_track_flag == false))	// 双目
 		{
-			// initializeFromInitializer(fh);
+			// initializeFromInitializer(fh);	// 为什么不需要？
 			first_track_flag = true;
+
 			lastF_2_fh_tries.push_back(SE3(Eigen::Matrix<double, 3, 3>::Identity(), Eigen::Matrix<double, 3, 1>::Zero()));
 
 			for (float rotDelta = 0.02; rotDelta < 0.05; rotDelta = rotDelta + 0.02)
@@ -332,9 +333,10 @@ namespace dso
 
 			coarseTracker->makeK(&Hcalib);
 			coarseTracker->setCTRefForFirstFrame(frameHessians);
+			
 			lastF = coarseTracker->lastRef;
 		}
-		else if (allFrameHistory.size() == 2)
+		else if (allFrameHistory.size() == 2)	// 单目
 		{
 			for (unsigned int i = 0; i < lastF_2_fh_tries.size(); i++)
 				lastF_2_fh_tries.push_back(SE3());
@@ -1047,7 +1049,7 @@ namespace dso
 		fh->makeImages(image->image, &Hcalib);
 		fh_right->ab_exposure = image_right->exposure_time;
 		fh_right->makeImages(image_right->image, &Hcalib);
-		
+
 		// =========================== 新增 start =========================
 		fh->frame_right = fh_right;
 
@@ -1066,7 +1068,7 @@ namespace dso
 			if (coarseInitializer->frameID < 0 && use_stereo) // first frame set. fh is kept by coarseInitializer.
 			{
 				coarseInitializer->setFirstStereo(&Hcalib, fh, fh_right);
-				
+
 				initFirstFrame_imu(fh);
 				initializeFromInitializer(fh);
 				initialized = true;
@@ -1232,7 +1234,7 @@ namespace dso
 		T_WD_l_half = T_WD;
 		state_twd.setZero();
 	}
-	
+
 	void FullSystem::savetrajectory(const Sophus::Matrix4d &T)
 	{
 		std::ofstream f1;

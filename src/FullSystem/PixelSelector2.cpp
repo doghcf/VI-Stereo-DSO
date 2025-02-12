@@ -31,6 +31,7 @@
 #include "FullSystem/HessianBlocks.h"
 #include "util/globalFuncs.h"
 #include <iostream>
+#include <opencv2/opencv.hpp>
 
 namespace dso
 {
@@ -67,7 +68,7 @@ namespace dso
 
 	int computeHistQuantil(int *hist, float below)
 	{
-		int th = hist[0] * below + 0.5f;	// 中位数位置
+		int th = hist[0] * below + 0.5f; // 中位数位置
 		for (int i = 0; i < 90; i++)
 		{
 			th -= hist[i + 1];
@@ -77,7 +78,7 @@ namespace dso
 		return 90;
 	}
 
-	// 根据梯度的直方图确定划分区域的梯度门限
+	// 根据梯度的直方图确定划分区域的梯度阈值
 	void PixelSelector::makeHists(const FrameHessian *const fh)
 	{
 		gradHistFrame = fh;
@@ -100,15 +101,15 @@ namespace dso
 				for (int j = 0; j < 32; j++)
 					for (int i = 0; i < 32; i++)
 					{
-						int it = i + 32 * x;	// 转换为全局坐标
+						int it = i + 32 * x; // 转换为全局坐标
 						int jt = j + 32 * y;
-						if (it > w - 2 || jt > h - 2 || it < 1 || jt < 1)	// 边界检查
+						if (it > w - 2 || jt > h - 2 || it < 1 || jt < 1) // 边界检查
 							continue;
 						int g = sqrtf(map0[i + j * w]);
 						if (g > 48)
 							g = 48;
 						hist0[g + 1]++;
-						hist0[0]++;		// 总计数？
+						hist0[0]++; // 总计数？
 					}
 
 				ths[x + y * w32] = computeHistQuantil(hist0, setting_minGradHistCut) + setting_minGradHistAdd;
@@ -167,7 +168,7 @@ namespace dso
 				thsSmoothed[x + y * w32] = (sum / num) * (sum / num);
 			}
 	}
-	
+
 	int PixelSelector::makeMaps(
 		const FrameHessian *const fh,
 		float *map_out, float density, int recursionsLeft, bool plot, float thFactor)
@@ -291,9 +292,42 @@ namespace dso
 		return numHaveSub;
 	}
 
+	// 将 FrameHessian 中的图像数据转换为 cv::Mat
+	cv::Mat convertFrameHessianToMat(const FrameHessian *fh, int width, int height)
+	{
+		cv::Mat image(height, width, CV_32FC3); // 创建一个 32 位浮点型 3 通道的 cv::Mat
+
+		for (int y = 0; y < height; ++y)
+		{
+			for (int x = 0; x < width; ++x)
+			{
+				Eigen::Vector3f pixel = fh->dI[y * width + x];
+				image.at<cv::Vec3f>(y, x) = cv::Vec3f(pixel[0], pixel[1], pixel[2]);
+			}
+		}
+
+		return image;
+	}
+
+	// 计算局部均值和标准差，并设置自适应阈值
+	float calculateAdaptiveThreshold(const cv::Mat &image, int x, int y, int blockSize, float C)
+	{
+		cv::Rect region(x - blockSize / 2, y - blockSize / 2, blockSize, blockSize);
+		region &= cv::Rect(0, 0, image.cols, image.rows); // 确保区域在图像范围内
+
+		cv::Mat localRegion = image(region);
+		cv::Scalar mean, stddev;
+		cv::meanStdDev(localRegion, mean, stddev);
+
+		return mean[0] + C * stddev[0];
+	}
+
 	Eigen::Vector3i PixelSelector::select(const FrameHessian *const fh,
 										  float *map_out, int pot, float thFactor)
-	{	// pot = 3, theFactor = 2
+	{
+		// pot = 3, theFactor = 2
+		// cv::Mat image = convertFrameHessianToMat(fh, wG[0], hG[0]);
+
 		Eigen::Vector3f const *const map0 = fh->dI;
 
 		float *mapmax0 = fh->absSquaredGrad[0];
@@ -369,6 +403,8 @@ namespace dso
 										if (xf < 4 || xf >= w - 5 || yf < 4 || yf > h - 4)
 											continue;
 
+										// float adaptiveThreshold = calculateAdaptiveThreshold(image, xf, yf, pot, 1);
+										// float pixelTH0 = adaptiveThreshold;
 										float pixelTH0 = thsSmoothed[(xf >> 5) + (yf >> 5) * thsStep];
 										float pixelTH1 = pixelTH0 * dw1;
 										float pixelTH2 = pixelTH1 * dw2;

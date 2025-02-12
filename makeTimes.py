@@ -3,8 +3,8 @@
 
 import csv
 # 输入文件路径和输出文件路径
-input_csv_file = '/home/bjergsen/data/euroc/MH_04_difficult/mav0/cam0/data.csv'
-output_txt_file = '/home/bjergsen/data/euroc/MH_04_difficult/mav0/cam0/times.txt'
+input_csv_file = '/home/bjergsen/data/euroc/MH_03_medium/mav0/cam1/data.csv'
+output_txt_file = '/home/bjergsen/data/euroc/MH_03_medium/mav0/cam1/times.txt'
 
 # 打开CSV文件进行读取
 with open(input_csv_file, 'r') as csv_file:
