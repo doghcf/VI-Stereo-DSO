@@ -1092,14 +1092,6 @@ namespace dso
 				fh->shell->poseValid = false;
 				delete fh;
 			}
-			std::ofstream f1;
-			std::string dsoposefile = "./data/" + savefile_tail + ".txt";
-			f1.open(dsoposefile, std::ios::out);
-			f1.close();
-			std::ofstream f2;
-			std::string gtfile = "./data/" + savefile_tail + "_gt.txt";
-			f2.open(gtfile, std::ios::out);
-			f2.close();
 			return;
 		}
 		else // do front-end operation.
@@ -1246,6 +1238,7 @@ namespace dso
 		   << T(2, 0) << " " << T(2, 1) << " " << T(2, 2) << " " << T(2, 3) << std::endl;
 		f1.close();
 	}
+	
 	void FullSystem::savetrajectory_tum(const SE3 &T, double time)
 	{
 

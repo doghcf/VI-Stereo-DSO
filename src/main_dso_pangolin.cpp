@@ -551,6 +551,65 @@ void getGroundtruth_euroc()
 	inf.close();
 }
 
+void getGroundtruth_kitti()
+{
+	std::ifstream inf;
+
+	if (gt_path.size() == 0)
+		return;
+	inf.open(gt_path);
+	std::string sline;
+	std::getline(inf, sline);
+	while (std::getline(inf, sline))
+	{
+		std::istringstream ss(sline);
+		Vec4 q4;
+		Vec3 t;
+		Vec3 v;
+		Vec3 bias_g;
+		Vec3 bias_a;
+		double time;
+		ss >> time;
+		time = time / 1e9;
+		char temp;
+		for (int i = 0; i < 3; ++i)
+		{
+			ss >> temp;
+			ss >> t(i);
+		}
+		ss >> temp;
+		ss >> q4(3);
+		for (int i = 0; i < 3; ++i)
+		{
+			ss >> temp;
+			ss >> q4(i);
+		}
+		for (int i = 0; i < 3; ++i)
+		{
+			ss >> temp;
+			ss >> v(i);
+		}
+		for (int i = 0; i < 3; ++i)
+		{
+			ss >> temp;
+			ss >> bias_g(i);
+		}
+		for (int i = 0; i < 3; ++i)
+		{
+			ss >> temp;
+			ss >> bias_a(i);
+		}
+		Eigen::Matrix3d R_wb = quaternionToRotation(q4);
+		SE3 pose0(R_wb, t);
+		gt_pose.push_back(pose0);
+		gt_time_stamp.push_back(time);
+		gt_velocity.push_back(v);
+		gt_bias_g.push_back(bias_g);
+		gt_bias_a.push_back(bias_a);
+	}
+	inf.close();
+}
+
 void getIMUdata_euroc()
 {
 	std::ifstream inf;
@@ -964,7 +1023,7 @@ int main(int argc, char **argv)
 	runthread.join();
 
 	for (IOWrap::Output3DWrapper *ow : fullSystem->outputWrapper)
-	{
+	{      
 		ow->join();
 		delete ow;
 	}
