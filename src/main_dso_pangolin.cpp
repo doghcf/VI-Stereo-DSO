@@ -551,35 +551,79 @@ void getGroundtruth_euroc()
 	inf.close();
 }
 
-void getIMUdata_euroc()
+void getIMUdata_kitti()
 {
-	std::ifstream inf;
-	inf.open(imu_path);
-	std::string sline;
-	std::getline(inf, sline);
-	while (std::getline(inf, sline))
+	std::vector<std::string> data_files;
+
+	DIR *dir;
+	struct dirent *ent;
+	if ((dir = opendir(imu_path.c_str())) == NULL)
 	{
-		std::istringstream ss(sline);
+		return;
+	}
+	if ((dir = opendir(imu_path.c_str())) != NULL)
+	{
+        while ((ent = readdir(dir)) != NULL) {
+            std::string filename = ent->d_name;
+            if (filename.find(".txt") != std::string::npos && filename != "times.txt") {
+                data_files.push_back(filename);
+            }
+        }
+        closedir(dir);
+        std::sort(data_files.begin(), data_files.end());
+    } 
+	else
+	{
+        throw std::runtime_error("can not open dir: " + imu_path);
+    }
+
+	std::vector<double> timestamps;
+	std::string time_file_path = imu_path.substr(0, imu_path.find_last_of("/"));
+    std::ifstream time_file(time_file_path + "/timestamps.txt");
+    if (!time_file.is_open()) {
+        throw std::runtime_error("can not open timestamp file: " + time_file_path + "/timestamps.txt");
+    }
+    std::string line;
+    while (std::getline(time_file, line)) {
+        timestamps.push_back(std::stod(line));
+    }
+
+	if (data_files.size() != timestamps.size()) {
+        throw std::runtime_error("number of data files does not match the number of timestamps.");
+    }
+
+	for (size_t i = 0; i < data_files.size(); ++i) {
+        std::ifstream imu_file(imu_path + "/" + data_files[i]);
+        if (!imu_file.is_open()) {
+            std::cerr << "warning: can not open file " << data_files[i] << ", skip this data point." << std::endl;
+            continue;
+        }
+
+        std::vector<double> values;
+        std::string raw_line;
+        if (std::getline(imu_file, raw_line)) {
+            std::istringstream iss(raw_line);
+            double val;
+            while (iss >> val) {
+                values.push_back(val);
+            }
+        }
+
+        // 验证数据完整性
+        if (values.size() != 30) { // 根据实际版本确认参数数量
+            std::cerr << "warning: file " << data_files[i] 
+                     << " Includes incomplete data (" << values.size() 
+                     << "/30)，skip this data point." << std::endl;
+            continue;
+        }
+		
 		Vec3 gyro, acc;
-		double time;
-		ss >> time;
-		time = time / 1e9;
-		char temp;
-		for (int i = 0; i < 3; ++i)
-		{
-			ss >> temp;
-			ss >> gyro(i);
-		}
-		for (int i = 0; i < 3; ++i)
-		{
-			ss >> temp;
-			ss >> acc(i);
-		}
+		gyro << values[17], values[18], values[19];
+		acc << values[11], values[12], values[13];
 		m_gry.push_back(gyro);
 		m_acc.push_back(acc);
-		imu_time_stamp.push_back(time);
-	}
-	inf.close();
+		imu_time_stamp.push_back(timestamps[i]);
+    }
 }
 
 void getTstereo()
@@ -682,7 +726,6 @@ void getPicTimestamp_euroc()
 
 void getPicTimestamp_kitti()
 {
-	printf("------------------------------------");
 	std::ifstream inf;
 	inf.open(pic_timestamp);
 	std::string sline;
@@ -767,7 +810,7 @@ int main(int argc, char **argv)
 	d_min = sqrt(1.1);
 	setting_margWeightFac_imu = 0.25;
 
-	getIMUdata_euroc();
+	getIMUdata_kitti();
 	getPicTimestamp_kitti();
 
 	double time_start;

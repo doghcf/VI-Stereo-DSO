@@ -282,29 +282,29 @@ private:
 	inline void loadTimestamps()
 	{
 		std::ifstream tr;
-		std::string timesFile = path.substr(0, path.find_last_of('/')) + "/times.txt";
+		std::string timesFile = path.substr(0, path.find_last_of('/')) + "/timestamps.txt";
 		tr.open(timesFile.c_str());
-		while (!tr.eof() && tr.good())
+		std::string sline;
+		while (std::getline(tr, sline))
 		{
-			std::string line;
-			char buf[1000];
-			tr.getline(buf, 1000);
+			std::tm tm = {};
+			std::istringstream ss(sline);
+			ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");  // 解析日期时间
 
-			int id;
-			double stamp;
-			float exposure = 0;
-
-			if (3 == sscanf(buf, "%d %lf %f", &id, &stamp, &exposure))
-			{
-				timestamps.push_back(stamp);
-				exposures.push_back(exposure);
+			// 提取纳秒部分
+			double nanoseconds = 0.0;
+			if (ss.peek() == '.') {
+				ss.ignore();
+				ss >> nanoseconds;
 			}
 
-			else if (2 == sscanf(buf, "%d %lf", &id, &stamp))
-			{
-				timestamps.push_back(stamp);
-				exposures.push_back(exposure);
-			}
+			// 转换为Unix时间戳（秒为单位）
+			auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+			double timestamp = std::chrono::duration_cast<std::chrono::duration<double>>(
+				tp.time_since_epoch()).count();
+			
+			double time = timestamp + nanoseconds / 1e9;
+			timestamps.push_back(time);
 		}
 		tr.close();
 
