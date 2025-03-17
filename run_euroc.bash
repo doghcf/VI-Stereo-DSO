@@ -28,5 +28,5 @@ dataname="MH_05_difficult"
 	preset=0 mode=1 \
 	quiet=1 nomt=1 \
 	savefile_tail=nt_${dataname}\
-	use_stereo=1 nogui=1 \
+	use_stereo=1 \
 	imu_weight=6 imu_weight_tracker=0.6 stereo_weight=0.5
