@@ -1033,10 +1033,10 @@ namespace dso
 
 		std::vector<double> imu_track_w(coarsestLvl, 0);
 		imu_track_w[0] = imu_weight_tracker;
-		imu_track_w[1] = imu_track_w[0] / 1.2;
-		imu_track_w[2] = imu_track_w[1] / 1.5;
-		imu_track_w[3] = imu_track_w[2] / 2;
-		imu_track_w[4] = imu_track_w[3] / 3;
+		// imu_track_w[1] = imu_track_w[0] / 1.2;
+		// imu_track_w[2] = imu_track_w[1] / 1.5;
+		// imu_track_w[3] = imu_track_w[2] / 2;
+		// imu_track_w[4] = imu_track_w[3] / 3;
 
 		for (int lvl = coarsestLvl; lvl >= 0; lvl--)
 		{
